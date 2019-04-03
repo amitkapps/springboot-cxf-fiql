@@ -7,6 +7,7 @@ import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.ext.search.SearchContextProvider;
+import org.apache.cxf.jaxrs.provider.JavaTimeTypesParamConverterProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class CxfConfig {
         JAXRSServerFactoryBean endpoint = new JAXRSServerFactoryBean();
         endpoint.setProvider(new JacksonJsonProvider());
         endpoint.setProvider(new SearchContextProvider());
+        endpoint.setProvider(new JavaTimeTypesParamConverterProvider());
 
 //        endpoint.getInInterceptors().add(new LoggingInInterceptor());
 //        endpoint.getOutInterceptors().add(new LoggingOutInterceptor());

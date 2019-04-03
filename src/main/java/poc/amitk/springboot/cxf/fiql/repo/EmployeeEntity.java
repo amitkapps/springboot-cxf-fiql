@@ -1,6 +1,7 @@
 package poc.amitk.springboot.cxf.fiql.repo;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**
@@ -23,6 +24,9 @@ public class EmployeeEntity {
     @ManyToOne
     @JoinColumn(name = "dept_cd")
     private DepartmentEntity department;
+
+    @Column(name = "JOIN_DATE")
+    private LocalDate joiningDate;
 
     public Long getEmployeeId() {
         return employeeId;
@@ -63,6 +67,7 @@ public class EmployeeEntity {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", department=" + department +
+                ", joiningDate=" + joiningDate +
                 '}';
     }
 
@@ -77,5 +82,13 @@ public class EmployeeEntity {
     @Override
     public int hashCode() {
         return Objects.hash(getEmployeeId());
+    }
+
+    public LocalDate getJoiningDate() {
+        return joiningDate;
+    }
+
+    public void setJoiningDate(LocalDate joiningDate) {
+        this.joiningDate = joiningDate;
     }
 }
