@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import poc.amitk.springboot.cxf.fiql.resource.EmployeeResource;
+import poc.amitk.springboot.cxf.fiql.resource.cxf.EmployeeResource;
 
 import java.util.Arrays;
 

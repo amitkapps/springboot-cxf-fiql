@@ -1,8 +1,8 @@
-package poc.amitk.springboot.cxf.fiql.resource;
+package poc.amitk.springboot.cxf.fiql.resource.cxf;
 
-import org.apache.cxf.jaxrs.ext.search.SearchCondition;
-import org.apache.cxf.jaxrs.ext.search.SearchConditionVisitor;
-import org.apache.cxf.jaxrs.ext.search.SearchContext;
+import io.micrometer.core.instrument.search.Search;
+import org.apache.cxf.jaxrs.ext.search.*;
+import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 import org.apache.cxf.jaxrs.ext.search.jpa.JPATypedQueryVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +13,7 @@ import poc.amitk.springboot.cxf.fiql.repo.EmployeeRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -39,6 +37,7 @@ public class EmployeeResource {
         this.entityManager = entityManager;
     }
 
+/*
     @GET
     public List<EmployeeEntity> findAll() {
         logger.info("querying all employees");
@@ -46,22 +45,39 @@ public class EmployeeResource {
         logger.info("found {} employee records", allEmployees.size());
         return allEmployees;
     }
+*/
 
-    @Path("/search")
+/*
+    @Context
+    SearchContext searchContext;
+*/
+
+    //    @Path("/search")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<EmployeeEntity> searchEmployees(@Context SearchContext searchContext) {
 
         logger.info("search context: {}", searchContext.getSearchExpression());
-        SearchCondition<EmployeeEntity> employeeSearchCondition = searchContext.getCondition(EmployeeEntity.class);
+        SearchCondition<EmployeeEntity> searchCondition = null;
+
+        if (null == searchContext.getSearchExpression()){
+            logger.info("no search condition supplied, returning all employees");
+            return employeeRepository.findAll();
+        }
+
+
+        searchCondition = searchContext.getCondition(EmployeeEntity.class);
+
+        logger.info("Search condition: {}", searchCondition.getStatement());
 
         SearchConditionVisitor<EmployeeEntity, TypedQuery<EmployeeEntity>> visitor =
                 new JPATypedQueryVisitor<>(entityManager, EmployeeEntity.class);
-        employeeSearchCondition.accept(visitor);
+        searchCondition.accept(visitor);
 
         TypedQuery<EmployeeEntity> typedQuery = visitor.getQuery();
         logger.info("Typed query: {}", typedQuery);
         List<EmployeeEntity> employees = typedQuery.getResultList();
         logger.info("found {} employees", employees.size());
         return employees;
-    }}
+    }
+}

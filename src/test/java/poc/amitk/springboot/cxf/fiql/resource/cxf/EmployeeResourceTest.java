@@ -1,4 +1,4 @@
-package poc.amitk.springboot.cxf.fiql.resource;
+package poc.amitk.springboot.cxf.fiql.resource.cxf;
 
 import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
@@ -52,7 +52,7 @@ public class EmployeeResourceTest {
     @Test
     public void test_searchEmployees_success(){
 
-        String uri = "/services/employees/search?_s=lastName==Vader";
+        String uri = "/services/employees?_s=lastName==Vader";
 
         ResponseEntity<String> responseEntity = this.restTemplate.getForEntity(uri, String.class);
         logger.info("uri: {}, response: {}", uri, responseEntity);
@@ -70,7 +70,7 @@ public class EmployeeResourceTest {
     @Test
     public void test_searchEmployeesUsingLike_success(){
 
-        String uri = "/services/employees/search?_s=lastName==Vad*";
+        String uri = "/services/employees?_s=lastName==Vad*";
 
         ResponseEntity<String> responseEntity = this.restTemplate.getForEntity(uri, String.class);
         logger.info("uri: {}, response: {}", uri, responseEntity);
