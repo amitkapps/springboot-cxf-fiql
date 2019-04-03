@@ -67,4 +67,22 @@ public class EmployeeResourceTest {
     }
 
 
+    @Test
+    public void test_searchEmployeesUsingLike_success(){
+
+        String uri = "/services/employees/search?_s=lastName==Vad*";
+
+        ResponseEntity<String> responseEntity = this.restTemplate.getForEntity(uri, String.class);
+        logger.info("uri: {}, response: {}", uri, responseEntity);
+        String json = responseEntity.getBody();
+        logger.info("/employees search response: {}", json);
+        assertThat(responseEntity.getStatusCode(), equalTo(HttpStatus.OK));
+
+
+        JSONArray jsonArray = JsonPath.read(json, "$.[*]");
+        assertThat(1, equalTo(jsonArray.size()));
+        assertThat(json, isJson(withJsonPath("$.[*].firstName", contains("Darth"))));
+    }
+
+
 }
