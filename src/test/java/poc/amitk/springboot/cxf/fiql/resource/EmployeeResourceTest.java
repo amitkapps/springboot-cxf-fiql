@@ -1,7 +1,6 @@
 package poc.amitk.springboot.cxf.fiql.resource;
 
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.matchers.JsonPathMatchers;
 import net.minidev.json.JSONArray;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,14 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Map;
-
-import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
-import static com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-
-//import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author amitkapps
@@ -50,8 +44,7 @@ public class EmployeeResourceTest {
         logger.info("/employees response: {}", json);
         assertThat(responseEntity.getStatusCode(), equalTo(HttpStatus.OK));
 
-        JSONArray jsonArray = JsonPath.read(json, "$.[*]");
-        assertThat(2, equalTo(jsonArray.size()));
+        assertThat(json, hasJsonPath("$.[*]", hasSize(2)));
         assertThat(json, isJson(withJsonPath("$.[*].firstName", containsInAnyOrder("Luke", "Darth"))));
     }
 
