@@ -1,5 +1,8 @@
 package poc.amitk.springboot.cxf.fiql.resource;
 
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.matchers.JsonPathMatchers;
+import net.minidev.json.JSONArray;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -12,8 +15,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Map;
+
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+
+//import static org.assertj.core.api.Assertions.*;
 
 /**
  * @author amitkapps
@@ -36,8 +46,32 @@ public class EmployeeResourceTest {
         String uri = "/services/employees";
         ResponseEntity<String> responseEntity = this.restTemplate.getForEntity(uri, String.class);
         logger.info("uri: {}, response: {}", uri, responseEntity);
-        logger.debug("/authorization response: {}", responseEntity.getBody());
-        assert responseEntity.getStatusCode().equals(HttpStatus.OK);
+        String json = responseEntity.getBody();
+        logger.info("/employees response: {}", json);
+        assertThat(responseEntity.getStatusCode(), equalTo(HttpStatus.OK));
 
+        JSONArray jsonArray = JsonPath.read(json, "$.[*]");
+        assertThat(2, equalTo(jsonArray.size()));
+        assertThat(json, isJson(withJsonPath("$.[*].firstName", containsInAnyOrder("Luke", "Darth"))));
     }
+
+
+    @Test
+    public void test_searchEmployees_success(){
+
+        String uri = "/services/employees/search?_s=lastName==Vader";
+
+        ResponseEntity<String> responseEntity = this.restTemplate.getForEntity(uri, String.class);
+        logger.info("uri: {}, response: {}", uri, responseEntity);
+        String json = responseEntity.getBody();
+        logger.info("/employees search response: {}", json);
+        assertThat(responseEntity.getStatusCode(), equalTo(HttpStatus.OK));
+
+
+        JSONArray jsonArray = JsonPath.read(json, "$.[*]");
+        assertThat(1, equalTo(jsonArray.size()));
+        assertThat(json, isJson(withJsonPath("$.[*].firstName", contains("Darth"))));
+    }
+
+
 }
