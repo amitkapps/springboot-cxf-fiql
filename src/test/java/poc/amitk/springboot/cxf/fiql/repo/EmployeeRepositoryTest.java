@@ -33,7 +33,7 @@ public class EmployeeRepositoryTest {
     @Test
     public void findEmployeeById(){
 
-        EmployeeEntity employee = employeeRepository.findOne(1000L);
+        EmployeeEntity employee = employeeRepository.findById(1000L).get();
         logger.debug("found one employee: {}", employee);
         assertThat(employee).isNotNull();
         assertThat(employee.getDepartment()).isNotNull();
