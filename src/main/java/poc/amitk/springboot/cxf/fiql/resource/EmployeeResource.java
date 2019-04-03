@@ -1,7 +1,9 @@
 package poc.amitk.springboot.cxf.fiql.resource;
 
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
+import org.apache.cxf.jaxrs.ext.search.SearchConditionVisitor;
 import org.apache.cxf.jaxrs.ext.search.SearchContext;
+import org.apache.cxf.jaxrs.ext.search.jpa.JPATypedQueryVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,8 @@ import org.springframework.stereotype.Component;
 import poc.amitk.springboot.cxf.fiql.repo.EmployeeEntity;
 import poc.amitk.springboot.cxf.fiql.repo.EmployeeRepository;
 
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -27,10 +31,12 @@ public class EmployeeResource {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final EmployeeRepository employeeRepository;
+    private final EntityManager entityManager;
 
     @Autowired
-    public EmployeeResource(EmployeeRepository employeeRepository) {
+    public EmployeeResource(EmployeeRepository employeeRepository, EntityManager entityManager) {
         this.employeeRepository = employeeRepository;
+        this.entityManager = entityManager;
     }
 
     @GET
@@ -45,9 +51,17 @@ public class EmployeeResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<EmployeeEntity> searchEmployees(@Context SearchContext searchContext) {
-        logger.info("search context: {}", searchContext);
-        SearchCondition<EmployeeEntity> condition = searchContext.getCondition(EmployeeEntity.class);
-        List<EmployeeEntity> allEmployees = employeeRepository.findAll();
-        logger.info("All Employees: {}", allEmployees);
-        return condition.findAll(allEmployees);
+
+        logger.info("search context: {}", searchContext.getSearchExpression());
+        SearchCondition<EmployeeEntity> employeeSearchCondition = searchContext.getCondition(EmployeeEntity.class);
+
+        SearchConditionVisitor<EmployeeEntity, TypedQuery<EmployeeEntity>> visitor =
+                new JPATypedQueryVisitor<>(entityManager, EmployeeEntity.class);
+        employeeSearchCondition.accept(visitor);
+
+        TypedQuery<EmployeeEntity> typedQuery = visitor.getQuery();
+        logger.info("Typed query: {}", typedQuery);
+        List<EmployeeEntity> employees = typedQuery.getResultList();
+        logger.info("found {} employees", employees.size());
+        return employees;
     }}
